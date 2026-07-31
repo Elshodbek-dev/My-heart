@@ -738,7 +738,16 @@ function setOnline(isOnline){
 
 function initPeer(){
   addSystemMsg('Ulanmoqda...');
-  peer = new Peer(PEER_IDS[myRole], { debug: 0 });
+  const iceConfig = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+    ]
+  };
+  peer = new Peer(PEER_IDS[myRole], { debug: 0, config: iceConfig });
   peer.on('open', () => { tryConnect(); });
   peer.on('connection', (incoming) => { setupConnection(incoming); });
   peer.on('call', (call) => { incomingCall.classList.add('show'); pendingCall = call; });
@@ -747,7 +756,7 @@ function initPeer(){
       setTimeout(tryConnect, 2500);
     } else if(err.type === 'unavailable-id'){
       addSystemMsg('Ulanishda muammo, qayta urinilmoqda...');
-      setTimeout(() => { peer = new Peer(PEER_IDS[myRole] + '-' + Math.random().toString(36).slice(2,6)); }, 1500);
+      setTimeout(() => { peer = new Peer(PEER_IDS[myRole] + '-' + Math.random().toString(36).slice(2,6), { config: iceConfig }); }, 1500);
     }
   });
 }
@@ -798,6 +807,16 @@ async function getLocalStream(){
   localVideo.srcObject = localStream;
   return localStream;
 }
+function tryPlay(videoEl){
+  const p = videoEl.play();
+  if(p && p.catch){
+    p.catch(() => {
+      const unlock = () => { videoEl.play().catch(()=>{}); document.removeEventListener('click', unlock); };
+      document.addEventListener('click', unlock, { once: true });
+      addSystemMsg("Video/ovozni ko'rish uchun ekranga bir marta bosing.");
+    });
+  }
+}
 function openVideoScreen(){
   videoScreen.classList.add('show');
   waitingLabel.style.display = 'flex';
@@ -813,8 +832,13 @@ callBtn.addEventListener('click', async () => {
   try{
     openVideoScreen();
     const stream = await getLocalStream();
+    tryPlay(localVideo);
     mediaCall = peer.call(PEER_IDS[otherRole], stream);
-    mediaCall.on('stream', (remoteStream) => { remoteVideo.srcObject = remoteStream; waitingLabel.style.display = 'none'; });
+    mediaCall.on('stream', (remoteStream) => {
+      remoteVideo.srcObject = remoteStream;
+      tryPlay(remoteVideo);
+      waitingLabel.style.display = 'none';
+    });
     mediaCall.on('close', () => closeVideoScreen());
     mediaCall.on('error', () => closeVideoScreen());
   }catch(e){
@@ -827,9 +851,14 @@ acceptBtn.addEventListener('click', async () => {
   try{
     openVideoScreen();
     const stream = await getLocalStream();
+    tryPlay(localVideo);
     pendingCall.answer(stream);
     mediaCall = pendingCall;
-    mediaCall.on('stream', (remoteStream) => { remoteVideo.srcObject = remoteStream; waitingLabel.style.display = 'none'; });
+    mediaCall.on('stream', (remoteStream) => {
+      remoteVideo.srcObject = remoteStream;
+      tryPlay(remoteVideo);
+      waitingLabel.style.display = 'none';
+    });
     mediaCall.on('close', () => closeVideoScreen());
     mediaCall.on('error', () => closeVideoScreen());
   }catch(e){
