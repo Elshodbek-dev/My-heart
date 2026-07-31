@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Yurak Kompasi — Elshod & Shabbona</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;600;700;800&display=swap');
 
@@ -449,7 +450,7 @@ function startAs(role){
   mainShell.classList.add('active');
   whoLabel.textContent = NAMES[otherRole] + " bilan suhbat";
   incomingName.textContent = NAMES[otherRole] + " video qo'ng'iroq qilmoqda";
-  initPeer();
+  initSignaling();
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -695,8 +696,36 @@ function showWin(){
 nextBtn.addEventListener('click', () => { overlay.classList.remove('show'); level++; startLevel(); });
 startLevel();
 
-/* ======================= CHAT + VIDEO (PeerJS) ======================= */
-let peer = null, conn = null, localStream = null, mediaCall = null, micOn = true, camOn = true, pendingCall = null;
+/* ======================= CHAT + VIDEO (Firebase-signaled WebRTC, P2P, nothing stored) ======================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBPO8Uqr4th-j3TdTGGqood0Lh3STcd_Qc",
+  authDomain: "heart-94b16.firebaseapp.com",
+  databaseURL: "https://heart-94b16-default-rtdb.firebaseio.com",
+  projectId: "heart-94b16",
+  storageBucket: "heart-94b16.firebasestorage.app",
+  messagingSenderId: "963941711368",
+  appId: "1:963941711368:web:abb3cff9b46a6e8cde1bbd"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const roomRef = db.ref('rooms/' + ROOM);
+
+const ICE_CONFIG = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+  ]
+};
+
+let pc = null, localStream = null, dc = null, remoteDc = null;
+let micOn = true, camOn = true;
+let makingOffer = false, ignoreOffer = false;
+function isPolite(){ return myRole === 'shabbona'; } // asymmetric: one side yields on collision, the other doesn't
+let remoteStream = new MediaStream();
+let callActive = false;
 
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
@@ -717,6 +746,8 @@ const camBtn = document.getElementById('camBtn');
 const endCallBtn = document.getElementById('endCallBtn');
 
 function addSystemMsg(text){
+  const last = messagesEl.lastElementChild;
+  if(last && last.classList.contains('system') && last.textContent === text) return;
   const div = document.createElement('div');
   div.className = 'msg system';
   div.textContent = text;
@@ -736,53 +767,119 @@ function setOnline(isOnline){
   callBtn.disabled = !isOnline;
 }
 
-function initPeer(){
+function myRef(path){ return roomRef.child(path + '/' + myRole); }
+function otherRef(path){ return roomRef.child(path + '/' + otherRole); }
+
+function createPeerConnection(){
+  const conn = new RTCPeerConnection(ICE_CONFIG);
+
+  conn.onnegotiationneeded = async () => {
+    try{
+      makingOffer = true;
+      await conn.setLocalDescription();
+      myRef('sdp').set({ type: conn.localDescription.type, sdp: conn.localDescription.sdp, ts: Date.now() });
+    }catch(e){}
+    finally{ makingOffer = false; }
+  };
+
+  conn.onicecandidate = ({candidate}) => {
+    if(candidate) myRef('ice').push(candidate.toJSON());
+  };
+
+  conn.ontrack = (event) => {
+    remoteStream.addTrack(event.track);
+    remoteVideo.srcObject = remoteStream;
+    tryPlay(remoteVideo);
+    waitingLabel.style.display = 'none';
+  };
+
+  conn.onconnectionstatechange = () => {
+    if(conn.connectionState === 'connected'){ setOnline(true); }
+    if(['disconnected','failed','closed'].includes(conn.connectionState)){ setOnline(false); }
+  };
+
+  return conn;
+}
+
+function initSignaling(){
   addSystemMsg('Ulanmoqda...');
-  peer = new Peer(PEER_IDS[myRole], { debug: 0 });
-  peer.on('open', () => { tryConnect(); });
-  peer.on('connection', (incoming) => { setupConnection(incoming); });
-  peer.on('call', (call) => { incomingCall.classList.add('show'); pendingCall = call; });
-  peer.on('error', (err) => {
-    if(err.type === 'peer-unavailable'){
-      setTimeout(tryConnect, 2500);
-    } else if(err.type === 'unavailable-id'){
-      addSystemMsg('Ulanishda muammo, qayta urinilmoqda...');
-      setTimeout(() => { peer = new Peer(PEER_IDS[myRole] + '-' + Math.random().toString(36).slice(2,6)); }, 1500);
+  pc = createPeerConnection();
+
+  dc = pc.createDataChannel('chat');
+  dc.onopen = () => { setOnline(true); addSystemMsg(NAMES[otherRole] + ' ulandi 💛'); };
+  dc.onclose = () => { setOnline(false); };
+
+  pc.ondatachannel = (event) => {
+    remoteDc = event.channel;
+    remoteDc.onmessage = (e) => {
+      try{
+        const data = JSON.parse(e.data);
+        if(data.type === 'msg'){
+          addMsg(data.text, false);
+          try{ window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); }catch(err){}
+        }
+      }catch(err){}
+    };
+  };
+
+  // presence (auto-clears on disconnect, nothing lingers)
+  const myPresenceRef = myRef('presence');
+  myPresenceRef.onDisconnect().remove();
+  myPresenceRef.set(Date.now()).catch((err) => {
+    addSystemMsg("Firebase xatosi: " + err.message + " — Database Rules'ni tekshiring.");
+  });
+
+  // listen for remote SDP messages (offers/answers) -> perfect negotiation
+  otherRef('sdp').on('value', async (snap) => {
+    const val = snap.val();
+    if(!val) return;
+    const description = { type: val.type, sdp: val.sdp };
+    try{
+      const offerCollision = description.type === 'offer' && (makingOffer || pc.signalingState !== 'stable');
+      ignoreOffer = !isPolite() && offerCollision;
+      if(ignoreOffer) return;
+      await pc.setRemoteDescription(description);
+      if(description.type === 'offer'){
+        await pc.setLocalDescription();
+        myRef('sdp').set({ type: pc.localDescription.type, sdp: pc.localDescription.sdp, ts: Date.now() });
+      }
+    }catch(e){}
+  });
+
+  // listen for remote ICE candidates
+  let iceProcessed = new Set();
+  otherRef('ice').on('child_added', async (snap) => {
+    if(iceProcessed.has(snap.key)) return;
+    iceProcessed.add(snap.key);
+    try{ await pc.addIceCandidate(snap.val()); }catch(e){}
+  });
+
+  // call request signaling (for incoming-call banner)
+  otherRef('callRequest').on('value', (snap) => {
+    if(snap.val() && !callActive){
+      incomingCall.classList.add('show');
     }
   });
-}
-function tryConnect(){
-  if(conn && conn.open) return;
-  try{
-    const c = peer.connect(PEER_IDS[otherRole], { reliable: true });
-    c.on('open', () => setupConnection(c));
-    c.on('error', () => {});
-  }catch(e){}
-  setTimeout(() => { if(!conn || !conn.open) tryConnect(); }, 3000);
-}
-function setupConnection(c){
-  if(conn && conn.open) { c.close(); return; }
-  conn = c;
-  setOnline(true);
-  addSystemMsg(NAMES[otherRole] + ' ulandi 💛');
-  conn.on('data', (data) => {
-    if(data && data.type === 'msg'){
-      addMsg(data.text, false);
-      try{ window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); }catch(e){}
+  otherRef('callEnd').on('value', (snap) => {
+    if(snap.val()){
+      closeVideoScreen();
+      otherRef('callEnd').set(null);
     }
   });
-  conn.on('close', () => {
-    setOnline(false);
-    addSystemMsg(NAMES[otherRole] + " chiqib ketdi — bu suhbat tarixi saqlanmaydi.");
-    conn = null;
-    setTimeout(tryConnect, 2000);
+
+  window.addEventListener('beforeunload', () => {
+    myPresenceRef.remove();
+    myRef('sdp').remove();
+    myRef('ice').remove();
+    myRef('callRequest').remove();
   });
 }
+
 function sendMessage(){
   const text = msgInput.value.trim();
   if(!text) return;
-  if(conn && conn.open){
-    conn.send({ type: 'msg', text });
+  if(dc && dc.readyState === 'open'){
+    dc.send(JSON.stringify({ type: 'msg', text }));
     addMsg(text, true);
     msgInput.value = '';
   } else {
@@ -798,25 +895,40 @@ async function getLocalStream(){
   localVideo.srcObject = localStream;
   return localStream;
 }
+function tryPlay(videoEl){
+  const p = videoEl.play();
+  if(p && p.catch){
+    p.catch(() => {
+      const unlock = () => { videoEl.play().catch(()=>{}); document.removeEventListener('click', unlock); };
+      document.addEventListener('click', unlock, { once: true });
+      addSystemMsg("Video/ovozni ko'rish uchun ekranga bir marta bosing.");
+    });
+  }
+}
 function openVideoScreen(){
+  callActive = true;
   videoScreen.classList.add('show');
   waitingLabel.style.display = 'flex';
   waitingText.textContent = "Ulanmoqda...";
 }
 function closeVideoScreen(){
+  callActive = false;
   videoScreen.classList.remove('show');
-  if(mediaCall){ mediaCall.close(); mediaCall = null; }
+  if(pc){
+    pc.getSenders().forEach(s => { if(s.track){ try{ pc.removeTrack(s); }catch(e){} } });
+  }
   if(localStream){ localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+  remoteStream.getTracks().forEach(t => remoteStream.removeTrack(t));
   remoteVideo.srcObject = null;
+  myRef('callRequest').set(null);
 }
 callBtn.addEventListener('click', async () => {
   try{
+    myRef('callRequest').set(Date.now());
     openVideoScreen();
     const stream = await getLocalStream();
-    mediaCall = peer.call(PEER_IDS[otherRole], stream);
-    mediaCall.on('stream', (remoteStream) => { remoteVideo.srcObject = remoteStream; waitingLabel.style.display = 'none'; });
-    mediaCall.on('close', () => closeVideoScreen());
-    mediaCall.on('error', () => closeVideoScreen());
+    tryPlay(localVideo);
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
   }catch(e){
     addSystemMsg("Kamera/mikrofonga ruxsat berilmadi.");
     closeVideoScreen();
@@ -827,22 +939,21 @@ acceptBtn.addEventListener('click', async () => {
   try{
     openVideoScreen();
     const stream = await getLocalStream();
-    pendingCall.answer(stream);
-    mediaCall = pendingCall;
-    mediaCall.on('stream', (remoteStream) => { remoteVideo.srcObject = remoteStream; waitingLabel.style.display = 'none'; });
-    mediaCall.on('close', () => closeVideoScreen());
-    mediaCall.on('error', () => closeVideoScreen());
+    tryPlay(localVideo);
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
   }catch(e){
     addSystemMsg("Kamera/mikrofonga ruxsat berilmadi.");
-    if(pendingCall) pendingCall.close();
+    closeVideoScreen();
   }
-  pendingCall = null;
 });
 declineBtn.addEventListener('click', () => {
   incomingCall.classList.remove('show');
-  if(pendingCall){ pendingCall.close(); pendingCall = null; }
+  otherRef('callEnd').set(Date.now());
 });
-endCallBtn.addEventListener('click', () => { closeVideoScreen(); });
+endCallBtn.addEventListener('click', () => {
+  closeVideoScreen();
+  otherRef('callEnd').set(Date.now());
+});
 micBtn.addEventListener('click', () => {
   if(!localStream) return;
   micOn = !micOn;
@@ -857,12 +968,7 @@ camBtn.addEventListener('click', () => {
   camBtn.classList.toggle('active-off', !camOn);
   camBtn.textContent = camOn ? '📷' : '🚫';
 });
-window.addEventListener('beforeunload', () => {
-  if(conn) conn.close();
-  if(mediaCall) mediaCall.close();
-  if(localStream) localStream.getTracks().forEach(t => t.stop());
-  if(peer) peer.destroy();
-});
+</script>
 </script>
 </body>
 </html>
