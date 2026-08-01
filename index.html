@@ -117,7 +117,11 @@
     padding: 6px 14px; border-radius: 999px;
     background: rgba(232,160,180,0.12); border: 1px solid rgba(232,160,180,0.35);
     color: var(--rose-soft);
+    font-family: 'Manrope', sans-serif;
+    cursor: default;
   }
+  .pill.stats-btn{ cursor: pointer; }
+  .pill.stats-btn:active{ transform: scale(0.94); }
   .pill.gold{ background: rgba(212,175,122,0.12); border-color: rgba(212,175,122,0.4); color: var(--gold); }
 
   .board-wrap{ flex: 1; display:flex; align-items:center; justify-content:center; width: 100%; }
@@ -188,11 +192,114 @@
 
   .messages{ flex:1; overflow-y:auto; padding: 4px 2px; display:flex; flex-direction:column; gap: 8px; }
   .msg{ max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height:1.4; word-wrap: break-word; }
-  .msg.me{ align-self:flex-end; background: linear-gradient(155deg, var(--rose), #D98BA3); color: #241A3D; border-bottom-right-radius: 4px; }
-  .msg.them{ align-self:flex-start; background: rgba(255,255,255,0.08); border: 1px solid rgba(245,237,224,0.14); border-bottom-left-radius: 4px; }
+  .msg.me{ align-self:flex-end; border-bottom-right-radius: 4px; }
+  .msg.them{ align-self:flex-start; border-bottom-left-radius: 4px; }
+  .msg.role-elshod{ background: linear-gradient(155deg, #6EA8E8, #4A78C4); color: #0B1E38; }
+  .msg.role-shabbona{ background: linear-gradient(155deg, var(--rose), #D98BA3); color: #241A3D; }
   .msg.system{ align-self:center; background:none; color: var(--cream-dim); font-size: 12px; font-style: italic; }
 
-  .composer{ display:flex; gap: 8px; padding: 10px 2px 12px; }
+  .composer{ display:flex; gap: 8px; padding: 10px 2px 12px; align-items:center; }
+  .icon-btn{
+    width: 38px; height:38px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.06); color: var(--cream);
+    font-size: 17px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .icon-btn:active{ transform: scale(0.92); }
+  .icon-btn.recording{ background: #E05A5A; color:#fff; animation: recPulse 1s infinite; }
+  @keyframes recPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.6; } }
+
+  .typing-indicator{ font-size: 11px; color: var(--cream-dim); display:flex; align-items:center; gap:6px; margin-top:2px; }
+  .typing-dots{ display:inline-flex; gap:2px; }
+  .typing-dots span{
+    width:4px; height:4px; border-radius:50%; background: var(--rose-soft);
+    animation: typingBounce 1.2s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2){ animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3){ animation-delay: 0.3s; }
+  @keyframes typingBounce{ 0%,60%,100%{ transform: translateY(0); opacity:0.4; } 30%{ transform: translateY(-3px); opacity:1; } }
+
+  .pinned-banner{
+    display:flex; align-items:center; gap:8px;
+    background: rgba(212,175,122,0.1); border: 1px solid rgba(212,175,122,0.3);
+    border-radius: 10px; padding: 7px 10px; margin-bottom: 8px; font-size: 12px;
+  }
+  .pinned-banner .pin-ic{ font-size:13px; }
+  .pinned-banner .pinned-text{ flex:1; color: var(--cream-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .unpin-btn{ background:none; border:none; color: var(--cream-dim); font-size:13px; cursor:pointer; }
+
+  .msg-wrap{ display:flex; flex-direction:column; max-width:78%; }
+  .msg-wrap.me{ align-self:flex-end; align-items:flex-end; }
+  .msg-wrap.them{ align-self:flex-start; align-items:flex-start; }
+  .msg-meta{ font-size:10px; color: var(--cream-dim); margin-top:3px; padding:0 4px; display:flex; gap:6px; align-items:center; }
+  .msg-meta .edited{ font-style:italic; }
+  .msg-meta .ticks{ color: var(--cream-dim); }
+  .msg-meta .ticks.read{ color: var(--rose-soft); }
+  .reply-quote{
+    font-size: 11px; opacity: 0.7; border-left: 2px solid rgba(245,237,224,0.3);
+    padding-left: 6px; margin-bottom: 4px;
+  }
+  .msg-image{ max-width: 200px; border-radius: 12px; display:block; }
+  .msg-reactions{ display:flex; gap:3px; margin-top:2px; }
+  .reaction-pill{
+    background: rgba(255,255,255,0.08); border-radius: 999px; padding: 1px 6px;
+    font-size: 12px; border: 1px solid rgba(245,237,224,0.12);
+  }
+  .msg-img{ max-width:180px; border-radius:14px; display:block; }
+  .msg-sticker{ font-size: 52px; line-height:1; background:none !important; border:none !important; padding:4px !important; }
+  .msg-voice{ display:flex; align-items:center; gap:8px; min-width:150px; }
+  .msg-voice .play-btn{
+    width:30px; height:30px; border-radius:50%; border:none; background: rgba(0,0,0,0.15);
+    color:inherit; font-size:13px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .msg-voice .wave{ flex:1; height:18px; display:flex; align-items:center; gap:2px; }
+  .msg-voice .wave span{ width:2px; background: currentColor; opacity:0.5; border-radius:1px; }
+  .msg-voice .dur{ font-size:11px; opacity:0.75; }
+
+  .attach-panel{
+    background: rgba(0,0,0,0.2); border-radius: 14px; padding: 10px; margin-bottom: 8px; max-height: 160px; overflow-y:auto;
+  }
+  .sticker-grid{ display:grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .sticker-grid button{
+    background:none; border:none; font-size: 26px; cursor:pointer; padding: 4px; border-radius:10px;
+  }
+  .sticker-grid button:active{ background: rgba(255,255,255,0.1); }
+
+  .effect-bar{ display:flex; align-items:center; gap:6px; margin-bottom:8px; overflow-x:auto; }
+  .effect-label{ font-size:11px; color: var(--cream-dim); flex-shrink:0; }
+  .effect-chip{
+    font-size:11px; padding:5px 10px; border-radius:999px; border:1px solid rgba(245,237,224,0.16);
+    background: rgba(255,255,255,0.05); color: var(--cream-dim); flex-shrink:0; cursor:pointer;
+  }
+  .effect-chip.active{ background: rgba(232,160,180,0.18); border-color: var(--rose); color: var(--rose-soft); }
+
+  .msg-menu-backdrop{
+    position:fixed; inset:0; z-index:40; display:none; align-items:flex-end; justify-content:center;
+    background: rgba(0,0,0,0.5);
+  }
+  .msg-menu-backdrop.show{ display:flex; }
+  .msg-menu{
+    width:100%; max-width:480px; background: linear-gradient(160deg,#3A2A5C,#241A3D);
+    border-radius: 20px 20px 0 0; padding: 14px 10px calc(20px + env(safe-area-inset-bottom,0px));
+  }
+  .reaction-row{ display:flex; justify-content:space-around; padding: 6px 0 14px; font-size:24px; }
+  .reaction-row span{ cursor:pointer; padding:4px; }
+  .reaction-row span:active{ transform: scale(1.3); }
+  .menu-item{
+    width:100%; text-align:left; padding: 13px 12px; background:none; border:none;
+    color: var(--cream); font-size:14px; font-family:'Manrope',sans-serif; border-radius:10px; cursor:pointer;
+  }
+  .menu-item:active{ background: rgba(255,255,255,0.06); }
+  .menu-item.danger{ color:#F28B8B; }
+
+  .reply-preview{
+    display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.06);
+    border-left: 3px solid var(--rose); border-radius:8px; padding:6px 10px; margin-bottom:6px; font-size:12px;
+  }
+  .reply-preview .txt{ flex:1; color: var(--cream-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .reply-preview .close{ background:none; border:none; color:var(--cream-dim); cursor:pointer; }
+  .quoted{
+    font-size:11px; opacity:0.7; border-left:2px solid currentColor; padding-left:6px; margin-bottom:4px;
+  }
   .composer input{
     flex:1; border-radius: 999px; border: 1px solid rgba(245,237,224,0.16);
     background: rgba(255,255,255,0.06); color: var(--cream); padding: 11px 16px;
@@ -289,6 +396,7 @@
         <div class="hud">
           <div class="pill gold" id="levelPill">DARAJA 1</div>
           <div class="pill" id="countPill">— qoldi</div>
+          <button class="pill stats-btn" id="statsBtn">📊</button>
         </div>
         <div class="board-wrap"><div class="board" id="board"></div></div>
         <div class="status" id="status">Chiziqni bos — yo'li ochiq bo'lsa chiqib ketadi</div>
@@ -297,15 +405,43 @@
       <!-- Chat screen -->
       <div class="screen" id="chatScreenTab">
         <div class="chat-header">
-          <div class="who" id="whoLabel">—</div>
+          <div>
+            <div class="who" id="whoLabel">—</div>
+            <div class="typing-indicator" id="typingIndicator" style="display:none;">
+              <span class="typing-dots"><span></span><span></span><span></span></span> yozmoqda...
+            </div>
+          </div>
           <div class="header-right">
             <div class="status-dot"><span class="dot" id="statusDot"></span><span id="statusText">ulanmoqda...</span></div>
             <button class="call-btn" id="callBtn" disabled>📹</button>
           </div>
         </div>
+
+        <div class="pinned-banner" id="pinnedBanner" style="display:none;">
+          <span class="pin-ic">📌</span>
+          <span class="pinned-text" id="pinnedText"></span>
+          <button class="unpin-btn" id="unpinBtn">✕</button>
+        </div>
+
         <div class="messages" id="messages"></div>
+
+        <div class="attach-panel" id="attachPanel" style="display:none;">
+          <div class="sticker-grid" id="stickerGrid"></div>
+        </div>
+
+        <div class="effect-bar" id="effectBar" style="display:none;">
+          <span class="effect-label">Effekt:</span>
+          <button class="effect-chip active" data-effect="none">Yo'q</button>
+          <button class="effect-chip" data-effect="hearts">💛 Yuraklar</button>
+          <button class="effect-chip" data-effect="confetti">🎉 Konfetti</button>
+        </div>
+
         <div class="composer">
+          <button class="icon-btn" id="attachBtn">➕</button>
+          <input type="file" id="imageInput" accept="image/*" style="display:none;">
           <input type="text" id="msgInput" placeholder="Xabar yoz..." maxlength="500">
+          <button class="icon-btn" id="effectToggleBtn">✨</button>
+          <button class="icon-btn voice-btn" id="voiceBtn">🎤</button>
           <button class="send-btn" id="sendBtn">➤</button>
         </div>
       </div>
@@ -318,6 +454,27 @@
     </div>
   </div>
 
+  <!-- Message action menu (edit/delete/pin/react) -->
+  <div class="msg-menu-backdrop" id="msgMenuBackdrop">
+    <div class="msg-menu" id="msgMenu">
+      <div class="reaction-row" id="reactionRow"></div>
+      <button class="menu-item" id="menuReply">↩️ Javob berish</button>
+      <button class="menu-item" id="menuEdit">✏️ Tahrirlash</button>
+      <button class="menu-item" id="menuPin">📌 Qadash</button>
+      <button class="menu-item danger" id="menuDelete">🗑 O'chirish</button>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- Game stats overlay -->
+<div class="overlay" id="statsOverlay">
+  <div class="love-card">
+    <div class="love-eyebrow">Statistika</div>
+    <div class="love-text" id="statsText" style="font-size:17px; font-style:normal; text-align:left;">—</div>
+    <button class="love-next" id="statsCloseBtn">Yopish</button>
+  </div>
 </div>
 
 <!-- Love message overlay -->
@@ -354,6 +511,7 @@
   </div>
   <div class="call-controls">
     <button id="micBtn">🎤</button>
+    <button id="screenBtn">🖥️</button>
     <button class="end-call" id="endCallBtn">📵</button>
     <button id="camBtn">📷</button>
   </div>
@@ -421,7 +579,15 @@ function animateParticles(){
   pctx.clearRect(0,0,pCanvas.width, pCanvas.height);
   particles.forEach(p => {
     p.x += p.vx; p.y += p.vy; p.vy += 0.02; p.rot += p.vr; p.life -= 0.012;
-    if(p.life > 0) drawHeart(pctx, p.x, p.y, p.size, p.rot, p.color, Math.max(p.life,0));
+    if(p.life > 0){
+      if(p.shape === 'rect'){
+        pctx.save(); pctx.translate(p.x,p.y); pctx.rotate(p.rot); pctx.globalAlpha = Math.max(p.life,0);
+        pctx.fillStyle = p.color; pctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+        pctx.restore();
+      } else {
+        drawHeart(pctx, p.x, p.y, p.size, p.rot, p.color, Math.max(p.life,0));
+      }
+    }
   });
   particles = particles.filter(p => p.life > 0);
   requestAnimationFrame(animateParticles);
@@ -687,13 +853,46 @@ function onPieceTap(id){
     setTimeout(() => cellDivs.forEach(d => d.classList.remove('shake','blocked')), 260);
   }
 }
+function loadStats(){
+  try{ return JSON.parse(localStorage.getItem('yurakStats')) || { bestLevel: 1, totalSolved: 0, lastPlayed: null }; }
+  catch(e){ return { bestLevel: 1, totalSolved: 0, lastPlayed: null }; }
+}
+function saveStats(stats){
+  try{ localStorage.setItem('yurakStats', JSON.stringify(stats)); }catch(e){}
+}
+function recordWin(currentLevel){
+  const stats = loadStats();
+  stats.totalSolved += 1;
+  stats.bestLevel = Math.max(stats.bestLevel, currentLevel);
+  stats.lastPlayed = Date.now();
+  saveStats(stats);
+}
+
 function showWin(){
   loveText.textContent = getNextMessage();
   overlay.classList.add('show');
   spawnHearts(30);
+  recordWin(level);
   try{ window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success'); }catch(e){}
 }
 nextBtn.addEventListener('click', () => { overlay.classList.remove('show'); level++; startLevel(); });
+
+const statsBtn = document.getElementById('statsBtn');
+const statsOverlay = document.getElementById('statsOverlay');
+const statsText = document.getElementById('statsText');
+const statsCloseBtn = document.getElementById('statsCloseBtn');
+statsBtn.addEventListener('click', () => {
+  const stats = loadStats();
+  const lastPlayedStr = stats.lastPlayed ? new Date(stats.lastPlayed).toLocaleString('uz-UZ') : "hali yo'q";
+  statsText.innerHTML = `
+    <div style="margin-bottom:10px;">🏆 Eng yuqori daraja: <b>${stats.bestLevel}</b></div>
+    <div style="margin-bottom:10px;">✅ Yechilgan jumboqlar: <b>${stats.totalSolved}</b></div>
+    <div>🕐 Oxirgi o'ynagan: <b>${lastPlayedStr}</b></div>
+  `;
+  statsOverlay.classList.add('show');
+});
+statsCloseBtn.addEventListener('click', () => statsOverlay.classList.remove('show'));
+
 startLevel();
 
 /* ======================= CHAT + VIDEO (Firebase-signaled WebRTC, P2P, nothing stored) ======================= */
@@ -743,7 +942,46 @@ const waitingLabel = document.getElementById('waitingLabel');
 const waitingText = document.getElementById('waitingText');
 const micBtn = document.getElementById('micBtn');
 const camBtn = document.getElementById('camBtn');
+const screenBtn = document.getElementById('screenBtn');
 const endCallBtn = document.getElementById('endCallBtn');
+let screenSharing = false;
+let cameraTrackBackup = null;
+
+// ---------- element refs ----------
+const pinnedBanner = document.getElementById('pinnedBanner');
+const pinnedText = document.getElementById('pinnedText');
+const unpinBtn = document.getElementById('unpinBtn');
+const attachBtn = document.getElementById('attachBtn');
+const attachPanel = document.getElementById('attachPanel');
+const stickerGrid = document.getElementById('stickerGrid');
+const imageInput = document.getElementById('imageInput');
+const effectToggleBtn = document.getElementById('effectToggleBtn');
+const effectBar = document.getElementById('effectBar');
+const voiceBtn = document.getElementById('voiceBtn');
+const typingIndicator = document.getElementById('typingIndicator');
+const msgMenuBackdrop = document.getElementById('msgMenuBackdrop');
+const msgMenu = document.getElementById('msgMenu');
+const reactionRow = document.getElementById('reactionRow');
+const menuReply = document.getElementById('menuReply');
+const menuEdit = document.getElementById('menuEdit');
+const menuPin = document.getElementById('menuPin');
+const menuDelete = document.getElementById('menuDelete');
+
+// ---------- state ----------
+const messagesMap = new Map();
+let pinnedId = null;
+let currentEffect = 'none';
+let editingId = null;
+let pendingReplyId = null;
+let selectedMsgId = null;
+let lastPeerReadTs = 0;
+let typingSendTimer = 0;
+let remoteTypingHideTimer = null;
+const fileTransfers = {};
+const REACTION_EMOJIS = ['❤️','😂','😮','😢','👍'];
+const STICKERS = ['📷','😀','😂','😍','🥰','😘','😢','😭','😡','👍','👎','🙏','🎉','❤️','💛','💜','🔥','✨'];
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
 
 function addSystemMsg(text){
   const last = messagesEl.lastElementChild;
@@ -754,18 +992,130 @@ function addSystemMsg(text){
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
-function addMsg(text, mine){
-  const div = document.createElement('div');
-  div.className = 'msg ' + (mine ? 'me' : 'them');
-  div.textContent = text;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
+
 function setOnline(isOnline){
   statusDot.classList.toggle('online', isOnline);
   statusText.textContent = isOnline ? 'onlayn' : 'ulanmoqda...';
   callBtn.disabled = !isOnline;
 }
+
+function snippetFor(msg){
+  if(!msg) return '';
+  if(msg.deleted) return "o'chirilgan xabar";
+  if(msg.kind === 'sticker') return msg.text + ' stiker';
+  if(msg.kind === 'image') return '📷 rasm';
+  if(msg.kind === 'voice') return '🎤 ovozli xabar';
+  return (msg.text || '').slice(0, 60);
+}
+
+function renderReactions(msg){
+  const entries = Object.entries(msg.reactions || {});
+  if(entries.length === 0) return '';
+  const counts = {};
+  entries.forEach(([role, emoji]) => { counts[emoji] = (counts[emoji]||0)+1; });
+  return Object.entries(counts).map(([emoji,count]) =>
+    `<span class="reaction-pill">${emoji}${count>1?' '+count:''}</span>`).join('');
+}
+
+function renderAll(){
+  messagesEl.innerHTML = '';
+  messagesMap.forEach((msg) => {
+    if(msg.system){ addSystemMsg(msg.text); return; }
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-wrap ' + (msg.mine ? 'me' : 'them');
+    wrap.dataset.id = msg.id;
+
+    let bubbleClass = 'msg ' + (msg.mine ? 'me' : 'them') + ' role-' + (msg.mine ? myRole : otherRole);
+    let inner = '';
+
+    if(msg.replyTo && messagesMap.has(msg.replyTo)){
+      inner += `<div class="reply-quote">↩️ ${snippetFor(messagesMap.get(msg.replyTo))}</div>`;
+    }
+
+    if(msg.deleted){
+      inner += `<span style="font-style:italic; opacity:0.6;">Xabar o'chirildi</span>`;
+    } else if(msg.kind === 'sticker'){
+      bubbleClass += ' msg-sticker';
+      inner += msg.text;
+    } else if(msg.kind === 'image'){
+      inner += `<img src="${msg.mediaUrl}" class="msg-image" alt="rasm">`;
+    } else if(msg.kind === 'voice'){
+      inner += `<audio controls src="${msg.mediaUrl}" style="max-width:200px;"></audio>`;
+    } else {
+      inner += escapeHtml(msg.text);
+      if(msg.edited) inner += ' <span style="opacity:0.55; font-size:11px;">(tahrirlangan)</span>';
+    }
+
+    const time = new Date(msg.ts).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+    let meta = `<div class="msg-meta">${time}`;
+    if(msg.mine && !msg.deleted){
+      meta += msg.ts <= lastPeerReadTs ? ' <span class="ticks read">✓✓</span>' : ' <span class="ticks">✓</span>';
+    }
+    meta += '</div>';
+
+    wrap.innerHTML = `<div class="${bubbleClass}">${inner}${meta}</div>
+      <div class="msg-reactions">${renderReactions(msg)}</div>`;
+
+    if(!msg.deleted){
+      wrap.querySelector('.msg').addEventListener('click', () => openMsgMenu(msg.id));
+    }
+    messagesEl.appendChild(wrap);
+  });
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderPinned(){
+  if(pinnedId && messagesMap.has(pinnedId)){
+    pinnedBanner.style.display = 'flex';
+    pinnedText.textContent = snippetFor(messagesMap.get(pinnedId));
+  } else {
+    pinnedBanner.style.display = 'none';
+  }
+}
+
+function addLocalMessage(msg){
+  messagesMap.set(msg.id, msg);
+  renderAll();
+}
+
+function sendPayload(obj){
+  if(dc && dc.readyState === 'open'){
+    dc.send(JSON.stringify(obj));
+    return true;
+  }
+  addSystemMsg("Hali ulanmagan — kutib turing.");
+  return false;
+}
+
+function triggerEffect(effect){
+  if(effect === 'hearts') spawnHearts(40);
+  else if(effect === 'confetti') spawnConfetti(50);
+}
+
+function spawnConfetti(n=50){
+  const colors = ['#E8A0B4','#D4AF7A','#2DD4BF','#F97316','#A855F7','#22C55E'];
+  for(let i=0;i<n;i++){
+    particles.push({
+      x: Math.random()*window.innerWidth,
+      y: -20,
+      vx: (Math.random()-0.5)*2,
+      vy: Math.random()*2 + 2,
+      size: Math.random()*8 + 5,
+      rot: Math.random()*Math.PI*2,
+      vr: (Math.random()-0.5)*0.3,
+      life: 1,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      shape: 'rect'
+    });
+  }
+}
+// (confetti rendering handled directly inside animateParticles)
 
 function myRef(path){ return roomRef.child(path + '/' + myRole); }
 function otherRef(path){ return roomRef.child(path + '/' + otherRole); }
@@ -801,6 +1151,68 @@ function createPeerConnection(){
   return conn;
 }
 
+function markRead(){
+  sendPayload({ ctrl: 'read', upTo: Date.now() });
+}
+
+function showRemoteTyping(){
+  typingIndicator.style.display = 'flex';
+  if(remoteTypingHideTimer) clearTimeout(remoteTypingHideTimer);
+  remoteTypingHideTimer = setTimeout(() => { typingIndicator.style.display = 'none'; }, 3000);
+}
+
+function handleIncomingPayload(data){
+  if(data.ctrl === 'typing'){ showRemoteTyping(); return; }
+  if(data.ctrl === 'read'){ lastPeerReadTs = data.upTo; renderAll(); return; }
+  if(data.ctrl === 'edit'){
+    const m = messagesMap.get(data.id);
+    if(m){ m.text = data.newText; m.edited = true; renderAll(); }
+    return;
+  }
+  if(data.ctrl === 'delete'){
+    const m = messagesMap.get(data.id);
+    if(m){ m.deleted = true; renderAll(); }
+    return;
+  }
+  if(data.ctrl === 'reaction'){
+    const m = messagesMap.get(data.id);
+    if(m){
+      m.reactions = m.reactions || {};
+      if(data.emoji){ m.reactions[data.from] = data.emoji; } else { delete m.reactions[data.from]; }
+      renderAll();
+    }
+    return;
+  }
+  if(data.ctrl === 'pin'){ pinnedId = data.id; renderPinned(); return; }
+  if(data.ctrl === 'file-start'){
+    fileTransfers[data.id] = { kind: data.kind, mime: data.mime, chunks: [], replyTo: data.replyTo, effect: data.effect };
+    return;
+  }
+  if(data.ctrl === 'file-chunk'){
+    const t = fileTransfers[data.id];
+    if(t) t.chunks[data.index] = data.data;
+    return;
+  }
+  if(data.ctrl === 'file-end'){
+    const t = fileTransfers[data.id];
+    if(!t) return;
+    const base64 = t.chunks.join('');
+    const mediaUrl = `data:${t.mime};base64,${base64}`;
+    addLocalMessage({ id: data.id, kind: t.kind, mediaUrl, mine: false, ts: Date.now(), reactions:{}, replyTo: t.replyTo || null });
+    if(t.effect) triggerEffect(t.effect);
+    try{ window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); }catch(e){}
+    if(document.getElementById('chatScreenTab').classList.contains('active')) markRead();
+    delete fileTransfers[data.id];
+    return;
+  }
+  if(data.kind){ // regular chat message (text/sticker)
+    addLocalMessage({ id: data.id, kind: data.kind, text: data.text, mine: false, ts: data.ts || Date.now(), reactions:{}, replyTo: data.replyTo || null });
+    if(data.effect) triggerEffect(data.effect);
+    try{ window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); }catch(e){}
+    if(document.getElementById('chatScreenTab').classList.contains('active')) markRead();
+  }
+}
+
 function initSignaling(){
   addSystemMsg('Ulanmoqda...');
   pc = createPeerConnection();
@@ -812,24 +1224,16 @@ function initSignaling(){
   pc.ondatachannel = (event) => {
     remoteDc = event.channel;
     remoteDc.onmessage = (e) => {
-      try{
-        const data = JSON.parse(e.data);
-        if(data.type === 'msg'){
-          addMsg(data.text, false);
-          try{ window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); }catch(err){}
-        }
-      }catch(err){}
+      try{ handleIncomingPayload(JSON.parse(e.data)); }catch(err){}
     };
   };
 
-  // presence (auto-clears on disconnect, nothing lingers)
   const myPresenceRef = myRef('presence');
   myPresenceRef.onDisconnect().remove();
   myPresenceRef.set(Date.now()).catch((err) => {
     addSystemMsg("Firebase xatosi: " + err.message + " — Database Rules'ni tekshiring.");
   });
 
-  // listen for remote SDP messages (offers/answers) -> perfect negotiation
   otherRef('sdp').on('value', async (snap) => {
     const val = snap.val();
     if(!val) return;
@@ -846,7 +1250,6 @@ function initSignaling(){
     }catch(e){}
   });
 
-  // listen for remote ICE candidates
   let iceProcessed = new Set();
   otherRef('ice').on('child_added', async (snap) => {
     if(iceProcessed.has(snap.key)) return;
@@ -854,17 +1257,11 @@ function initSignaling(){
     try{ await pc.addIceCandidate(snap.val()); }catch(e){}
   });
 
-  // call request signaling (for incoming-call banner)
   otherRef('callRequest').on('value', (snap) => {
-    if(snap.val() && !callActive){
-      incomingCall.classList.add('show');
-    }
+    if(snap.val() && !callActive){ incomingCall.classList.add('show'); }
   });
   otherRef('callEnd').on('value', (snap) => {
-    if(snap.val()){
-      closeVideoScreen();
-      otherRef('callEnd').set(null);
-    }
+    if(snap.val()){ closeVideoScreen(); otherRef('callEnd').set(null); }
   });
 
   window.addEventListener('beforeunload', () => {
@@ -875,19 +1272,232 @@ function initSignaling(){
   });
 }
 
+// ---------- composer: text / edit / reply ----------
+function clearComposerState(){
+  editingId = null;
+  pendingReplyId = null;
+  msgInput.value = '';
+  msgInput.focus();
+}
+
 function sendMessage(){
   const text = msgInput.value.trim();
   if(!text) return;
-  if(dc && dc.readyState === 'open'){
-    dc.send(JSON.stringify({ type: 'msg', text }));
-    addMsg(text, true);
-    msgInput.value = '';
-  } else {
-    addSystemMsg("Hali ulanmagan — kutib turing yoki ikkalangiz ham ilovani ochganingizga ishonch hosil qiling.");
+
+  if(editingId){
+    const m = messagesMap.get(editingId);
+    if(m){ m.text = text; m.edited = true; }
+    sendPayload({ ctrl: 'edit', id: editingId, newText: text });
+    renderAll();
+    clearComposerState();
+    return;
   }
+
+  const id = uid();
+  const payload = { id, kind: 'text', text, ts: Date.now(), replyTo: pendingReplyId, effect: currentEffect !== 'none' ? currentEffect : null };
+  addLocalMessage({ id, kind: 'text', text, mine: true, ts: payload.ts, reactions:{}, replyTo: pendingReplyId });
+  sendPayload(payload);
+  if(currentEffect !== 'none'){ triggerEffect(currentEffect); resetEffect(); }
+  clearComposerState();
 }
+sendBtn.addEventListener('mousedown', (e) => e.preventDefault());
+sendBtn.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
 sendBtn.addEventListener('click', sendMessage);
 msgInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') sendMessage(); });
+msgInput.addEventListener('input', () => {
+  const now = Date.now();
+  if(now - typingSendTimer > 1800){ typingSendTimer = now; sendPayload({ ctrl: 'typing' }); }
+});
+
+// ---------- stickers / attach panel ----------
+STICKERS.forEach((s) => {
+  const btn = document.createElement('button');
+  btn.textContent = s;
+  if(s === '📷'){
+    btn.addEventListener('click', () => imageInput.click());
+  } else {
+    btn.addEventListener('click', () => {
+      const id = uid();
+      const payload = { id, kind: 'sticker', text: s, ts: Date.now(), replyTo: pendingReplyId, effect: currentEffect !== 'none' ? currentEffect : null };
+      addLocalMessage({ id, kind: 'sticker', text: s, mine: true, ts: payload.ts, reactions:{}, replyTo: pendingReplyId });
+      sendPayload(payload);
+      if(currentEffect !== 'none'){ triggerEffect(currentEffect); resetEffect(); }
+      pendingReplyId = null;
+      attachPanel.style.display = 'none';
+    });
+  }
+  stickerGrid.appendChild(btn);
+});
+attachBtn.addEventListener('click', () => {
+  attachPanel.style.display = attachPanel.style.display === 'none' ? 'flex' : 'none';
+  effectBar.style.display = 'none';
+});
+
+// ---------- effect picker ----------
+function resetEffect(){
+  currentEffect = 'none';
+  document.querySelectorAll('.effect-chip').forEach(c => c.classList.toggle('active', c.dataset.effect === 'none'));
+}
+effectToggleBtn.addEventListener('click', () => {
+  effectBar.style.display = effectBar.style.display === 'none' ? 'flex' : 'none';
+  attachPanel.style.display = 'none';
+});
+document.querySelectorAll('.effect-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    currentEffect = chip.dataset.effect;
+    document.querySelectorAll('.effect-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    effectBar.style.display = 'none';
+  });
+});
+
+// ---------- image sending ----------
+imageInput.addEventListener('change', async () => {
+  const file = imageInput.files[0];
+  if(!file) return;
+  attachPanel.style.display = 'none';
+  const dataUrl = await downscaleImage(file);
+  const id = uid();
+  addLocalMessage({ id, kind: 'image', mediaUrl: dataUrl, mine: true, ts: Date.now(), reactions:{}, replyTo: pendingReplyId });
+  sendChunked(id, 'image', 'image/jpeg', dataUrl.split(',')[1], pendingReplyId);
+  pendingReplyId = null;
+  imageInput.value = '';
+});
+
+function downscaleImage(file){
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.onload = () => {
+        const maxDim = 1000;
+        let w = img.width, h = img.height;
+        if(w > maxDim || h > maxDim){
+          const scale = maxDim / Math.max(w,h);
+          w *= scale; h *= scale;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function sendChunked(id, kind, mime, base64Data, replyTo){
+  const CHUNK = 12000;
+  sendPayload({ ctrl: 'file-start', id, kind, mime, replyTo, effect: currentEffect !== 'none' ? currentEffect : null });
+  for(let i=0, idx=0; i<base64Data.length; i+=CHUNK, idx++){
+    sendPayload({ ctrl: 'file-chunk', id, index: idx, data: base64Data.slice(i, i+CHUNK) });
+  }
+  sendPayload({ ctrl: 'file-end', id });
+  if(currentEffect !== 'none'){ triggerEffect(currentEffect); resetEffect(); }
+}
+
+// ---------- voice recording ----------
+let mediaRecorder = null, recordedChunks = [];
+async function startRecording(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    recordedChunks = [];
+    mediaRecorder.ondataavailable = (e) => { if(e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+      if(blob.size < 500) return; // too short, ignore
+      const dataUrl = await blobToDataUrl(blob);
+      const id = uid();
+      addLocalMessage({ id, kind: 'voice', mediaUrl: dataUrl, mine: true, ts: Date.now(), reactions:{}, replyTo: pendingReplyId });
+      sendChunked(id, 'voice', 'audio/webm', dataUrl.split(',')[1], pendingReplyId);
+      pendingReplyId = null;
+    };
+    mediaRecorder.start();
+    voiceBtn.classList.add('recording');
+  }catch(e){
+    addSystemMsg("Mikrofonga ruxsat berilmadi.");
+  }
+}
+function stopRecording(){
+  if(mediaRecorder && mediaRecorder.state !== 'inactive'){ mediaRecorder.stop(); }
+  voiceBtn.classList.remove('recording');
+}
+function blobToDataUrl(blob){
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+voiceBtn.addEventListener('mousedown', startRecording);
+voiceBtn.addEventListener('mouseup', stopRecording);
+voiceBtn.addEventListener('mouseleave', stopRecording);
+voiceBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(); }, { passive: false });
+voiceBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(); }, { passive: false });
+
+// ---------- message action menu ----------
+function openMsgMenu(id){
+  const msg = messagesMap.get(id);
+  if(!msg || msg.deleted) return;
+  selectedMsgId = id;
+  reactionRow.innerHTML = '';
+  REACTION_EMOJIS.forEach(emoji => {
+    const span = document.createElement('span');
+    span.textContent = emoji;
+    span.addEventListener('click', () => {
+      const m = messagesMap.get(selectedMsgId);
+      const already = m.reactions && m.reactions[myRole] === emoji;
+      m.reactions = m.reactions || {};
+      if(already){ delete m.reactions[myRole]; sendPayload({ ctrl:'reaction', id: selectedMsgId, emoji: null, from: myRole }); }
+      else { m.reactions[myRole] = emoji; sendPayload({ ctrl:'reaction', id: selectedMsgId, emoji, from: myRole }); }
+      renderAll();
+      closeMsgMenu();
+    });
+    reactionRow.appendChild(span);
+  });
+  menuEdit.style.display = (msg.mine && msg.kind === 'text') ? 'block' : 'none';
+  menuDelete.style.display = msg.mine ? 'block' : 'none';
+  menuPin.textContent = (pinnedId === id) ? '📌 Qadashni bekor qilish' : '📌 Qadash';
+  msgMenuBackdrop.classList.add('show');
+}
+function closeMsgMenu(){ msgMenuBackdrop.classList.remove('show'); }
+msgMenuBackdrop.addEventListener('click', (e) => { if(e.target === msgMenuBackdrop) closeMsgMenu(); });
+msgMenu.addEventListener('click', (e) => e.stopPropagation());
+
+menuReply.addEventListener('click', () => {
+  pendingReplyId = selectedMsgId;
+  msgInput.focus();
+  closeMsgMenu();
+});
+menuEdit.addEventListener('click', () => {
+  const m = messagesMap.get(selectedMsgId);
+  if(m){ editingId = selectedMsgId; msgInput.value = m.text; msgInput.focus(); }
+  closeMsgMenu();
+});
+menuPin.addEventListener('click', () => {
+  pinnedId = (pinnedId === selectedMsgId) ? null : selectedMsgId;
+  sendPayload({ ctrl: 'pin', id: pinnedId });
+  renderPinned();
+  closeMsgMenu();
+});
+menuDelete.addEventListener('click', () => {
+  const m = messagesMap.get(selectedMsgId);
+  if(m){ m.deleted = true; sendPayload({ ctrl: 'delete', id: selectedMsgId }); renderAll(); }
+  closeMsgMenu();
+});
+unpinBtn.addEventListener('click', () => {
+  pinnedId = null;
+  sendPayload({ ctrl: 'pin', id: null });
+  renderPinned();
+});
+
+// mark read when switching into the chat tab
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => { if(btn.dataset.tab === 'chatScreenTab') markRead(); });
+});
 
 async function getLocalStream(){
   if(localStream) return localStream;
@@ -918,6 +1528,11 @@ function closeVideoScreen(){
     pc.getSenders().forEach(s => { if(s.track){ try{ pc.removeTrack(s); }catch(e){} } });
   }
   if(localStream){ localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+  if(screenSharing){
+    screenSharing = false;
+    screenBtn.classList.remove('active-off');
+    cameraTrackBackup = null;
+  }
   remoteStream.getTracks().forEach(t => remoteStream.removeTrack(t));
   remoteVideo.srcObject = null;
   myRef('callRequest').set(null);
@@ -968,6 +1583,31 @@ camBtn.addEventListener('click', () => {
   camBtn.classList.toggle('active-off', !camOn);
   camBtn.textContent = camOn ? '📷' : '🚫';
 });
+screenBtn.addEventListener('click', async () => {
+  if(!pc) return;
+  const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+  if(!screenSharing){
+    try{
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const screenTrack = screenStream.getVideoTracks()[0];
+      cameraTrackBackup = sender ? sender.track : null;
+      if(sender) await sender.replaceTrack(screenTrack);
+      localVideo.srcObject = screenStream;
+      screenSharing = true;
+      screenBtn.classList.add('active-off');
+      screenTrack.onended = () => { if(screenSharing) revertToCamera(); };
+    }catch(e){}
+  } else {
+    revertToCamera();
+  }
+});
+async function revertToCamera(){
+  const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+  if(sender && cameraTrackBackup){ await sender.replaceTrack(cameraTrackBackup); }
+  if(localStream) localVideo.srcObject = localStream;
+  screenSharing = false;
+  screenBtn.classList.remove('active-off');
+}
 </script>
 </script>
 </body>
